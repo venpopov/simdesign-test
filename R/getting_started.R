@@ -30,10 +30,16 @@ Analyse <- function(condition, dat, fixed_objects) {
 }
 
 Summarise <- function(condition, results, fixed_objects) {
+    saveRDS(results, "output/results.rds")
+    saveRDS(condition, "output/condition.rds")
     list(
       bias = list(
         kappa = mean(results$kappa_est - condition$kappa),
         pmem = mean(results$pmem_est - condition$pmem)
+      ),
+      rmse = list(
+        kappa = sqrt(mean((results$kappa_est - condition$kappa)^2)),
+        pmem = sqrt(mean((results$pmem_est - condition$pmem)^2))
       )
     )
 }

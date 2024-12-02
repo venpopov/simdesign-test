@@ -241,3 +241,59 @@ I have misunderstood whne the Summarise function is applied. I thought it is use
 ![alt text](assets/simdesign-structure.png)
 
 Specifically, for a single row of the design grid, we get as many results from Analyze() as there are replications. Then Summarise() is applied to these results. This means that the `condition` object in Summarise() is a single row of the design grid, and I cannot compute the correlation between the true and estimated parameters as I did. I will need to do that **outside** of the runSimulation() call.
+
+##### Interlude: Figure out the format of the arguments passed to Summarise
+
+I don't quite understand what the format of the variables passed to Summarise is. I added the following two lines to the `Summarise` function:
+
+```r
+saveRDS(condition, "output/condition.rds")
+saveRDS(results, "output/results.rds")
+```
+
+after running the script, I can inspect the files:
+
+```r
+readRDS('output/condition.rds')
+#> # A tibble: 1 × 4
+#>      ID     n  pmem kappa
+#>   <int> <dbl> <dbl> <dbl>
+#> 1    27   100   0.9    32
+```
+
+Thus the condition input is a tibble with a single row of the Design object (plus an extra variable ID). 
+
+Now the results object. I wasn't sure what to expect, because the Analyse functio returns a data.frame with one row. Was I going to get a list of data.frames? Or a data.frame with multiple rows? 
+
+```r
+readRDS('output/results.rds') |> str()
+#> 'data.frame':   2 obs. of  2 variables:
+#>  $ kappa_est: num  37.5 28.6
+#>  $ pmem_est : num  0.903 0.892
+```
+
+A data.frame with multiple rows it is. 
+
+
+
+#### Look at the results of the toy example
+
+Strange, when I call the resulting object from `runSimulation()` I get a tibble with some stats, but no results:
+
+```r
+#> # A tibble: 27 × 7
+#>        n  pmem kappa REPLICATIONS SIM_TIME       SEED COMPLETED               
+#>    <dbl> <dbl> <dbl>        <dbl> <chr>         <int> <chr>                   
+#>  1    20   0.3     2            2 0.02s    1067494386 Mon Dec  2 07:12:04 2024
+#>  2    50   0.3     2            2 0.02s    1016705019 Mon Dec  2 07:12:04 2024
+#>  3   100   0.3     2            2 0.02s     722626823 Mon Dec  2 07:12:04 2024
+#>  4    20   0.6     2            2 0.02s     831982255 Mon Dec  2 07:12:04 2024
+#>  5    50   0.6     2            2 0.01s     768366952 Mon Dec  2 07:12:04 2024
+#>  6   100   0.6     2            2 0.01s     304278543 Mon Dec  2 07:12:04 2024
+#>  7    20   0.9     2            2 0.01s      65199313 Mon Dec  2 07:12:04 2024
+#>  8    50   0.9     2            2 0.01s    1432496718 Mon Dec  2 07:12:04 2024
+#>  9   100   0.9     2            2 0.01s    1874577138 Mon Dec  2 07:12:04 2024
+#> 10    20   0.3     8            2 0.01s     516980583 Mon Dec  2 07:12:04 2024
+#> # ℹ 17 more rows
+#> # ℹ Use `print(n = ...)` to see more rows
+```
