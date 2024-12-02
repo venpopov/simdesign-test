@@ -1,5 +1,7 @@
 project:
-  title: "default"
+  type: default
+  title: "Experimenting with SimDesign"
+  execute-dir: project
 
 
 

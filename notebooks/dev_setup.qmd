@@ -1,3 +1,8 @@
+---
+title: "Dev Log"
+format: gfm
+---
+
 ### Standard R Project Setup  
 
 Create local repository

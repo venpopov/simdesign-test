@@ -1,4 +1,12 @@
-# be sure to use remotes::install_github("venpopov/mixtur") for vastly improve efficiency
+# A working example
+
+
+In ![Getting started](misc_notes.qmd) I expored the initial stages of
+using SimDesign and ran into some issues. Starting here fresh after I
+have cleared some of those issues up
+
+``` r
+# be sure to use remotes::install_github("venpopov/mixtur") instead of the CRAN version for vastly improved efficiency
 library(SimDesign)
 library(bmm)
 library(mixtur) 
@@ -44,5 +52,4 @@ if (file.exists(out_file)) {
   )
   saveRDS(res, out_file)
 }
-                    
-
+```

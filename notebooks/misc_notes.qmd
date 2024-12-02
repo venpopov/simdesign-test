@@ -1,6 +1,7 @@
 ---
 title: "Notes on SimDesign"
 toc: true
+format: gfm
 execute: 
   freeze: true
 ---
