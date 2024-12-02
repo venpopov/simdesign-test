@@ -65,3 +65,19 @@ followed by
 ```
 renv::snapshot()
 ```
+
+### Working with the SimDesign Package
+
+The first recommendation in the tutorial is to use 
+
+```r
+SimDesign::SimFunctions()
+```
+
+to generate a template. Let's save it to a file:
+
+```r
+SimDesign::SimFunctions(file = "R/getting_started.R")
+```
+
+Note: this create a double `.R` extension. The package does not check if you already have an extension in the file name (so don't add `.R` to the file name).
