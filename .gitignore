@@ -1,1 +1,4 @@
 output/*
+*.html
+*_files/
+/.quarto/
