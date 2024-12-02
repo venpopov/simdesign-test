@@ -1,39 +1,49 @@
-#' --- 
-#' title: "Simulation title"
-#' output:
-#'   html_document:
-#'     theme: readable
-#'     code_download: true
-#' ---
-
-
-#-------------------------------------------------------------------
-
+# be sure to use remotes::install_github("venpopov/mixtur") for vastly improve efficiency
 library(SimDesign)
+library(bmm)
+library(mixtur) 
 
-Design <- createDesign(factor1 = NA,
-                       factor2 = NA)
+Design <- createDesign(n = c(20, 50, 100),
+                       pmem = c(0.3, 0.6, 0.9),
+                       kappa = c(2, 8, 32))
 
 #-------------------------------------------------------------------
 
 Generate <- function(condition, fixed_objects) {
-    dat <- data.frame()
-    dat
+    data.frame(
+      response = bmm::rmixture2p(
+        n = condition$n, 
+        kappa = condition$kappa, 
+        p_mem = condition$pmem
+      ),
+      target = 0,
+      id = 1
+    )
 }
 
 Analyse <- function(condition, dat, fixed_objects) {
-    ret <- nc(stat1 = NaN, stat2 = NaN)
-    ret
+  suppressMessages(
+    mixtur::fit_mixtur(dat, model = "2_component", unit = "radians") |> 
+      dplyr::select(kappa, p_t) |> 
+      dplyr::rename(kappa_est = kappa, pmem_est = p_t)
+  )
 }
 
 Summarise <- function(condition, results, fixed_objects) {
-    ret <- c(bias = NaN, RMSE = NaN)
-    ret
+    list(
+      bias = list(
+        kappa = mean(results$kappa_est - condition$kappa),
+        pmem = mean(results$pmem_est - condition$pmem)
+      )
+    )
 }
 
 #-------------------------------------------------------------------
 
-res <- runSimulation(design=Design, replications=2, generate=Generate, 
-                     analyse=Analyse, summarise=Summarise)
-res
+res <- runSimulation(
+  design = Design, replications = 2, generate = Generate,
+  analyse = Analyse, summarise = Summarise
+)
+                     
 
+res

@@ -68,6 +68,8 @@ renv::snapshot()
 
 ### Working with the SimDesign Package
 
+#### Step 1: Generate a structural template for a generate-analyse-summarise workflow
+
 The first recommendation in the tutorial is to use 
 
 ```r
@@ -130,4 +132,112 @@ res
 
 ```
 
-I am not a big fan of the capital letters in the function names. 
+I am not a big fan of the capital letters in the function names but I'll deal with that later.
+
+#### Step 2: Use `createDesign()` to create a design object
+
+I'm not absolutely sure what a design is in this context, but it sounds like it might be a grid of parameters? The tutorial recommends using the following function and then editing the resulting Design object definition:
+
+```r
+createDesign()
+```
+
+I see that this is already present in the `getting_started.R` file. 
+
+This looks just like an `expand.grid` wrapped in a tible:
+
+```r
+Design <- createDesign(a = c(1,2,3), b = c(2,5))
+Design
+#> # A tibble: 6 × 2
+#>       a     b
+#>   <dbl> <dbl>
+#> 1     1     2
+#> 2     2     2
+#> 3     3     2
+#> 4     1     5
+#> 5     2     5
+#> 6     3     5
+```
+
+The only difference seems to be the presence of an extra attribute `Design.ID` and that this object is of class `Design`. Is any of this necesary? I will setup a basic grid for testing the simple 2-parameter mixture model:
+
+```r
+Design <- createDesign(n = c(20, 50, 100),
+                       pmem = c(0.3, 0.6, 0.9),
+                       kappa = c(2, 8, 32))
+```
+
+#### Step 3: Edit the `Generate`, `Analyse`, and `Summarise` functions
+
+I replaced them with functions for generating data from the 2-parameter mixture model, fitting the model via mixtur, and summarizing the correlation between the true and estimated parameters:
+
+```r
+library(SimDesign)
+library(bmm)
+library(mixtur) 
+
+Design <- createDesign(n = c(20, 50, 100),
+                       pmem = c(0.3, 0.6, 0.9),
+                       kappa = c(2, 8, 32))
+
+#-------------------------------------------------------------------
+
+Generate <- function(condition, fixed_objects) {
+    data.frame(
+      response = bmm::rmixture2p(
+        n = condition$n, 
+        kappa = condition$kappa, 
+        p_mem = condition$pmem
+      ),
+      target = 0,
+      id = 1
+    )
+}
+
+Analyse <- function(condition, dat, fixed_objects) {
+  suppressMessages(
+    mixtur::fit_mixtur(dat, model = "2_component", unit = "radians") |> 
+      dplyr::select(kappa, p_t) |> 
+      dplyr::rename(kappa_est = kappa, pmem_est = p_t)
+  )
+}
+
+Summarise <- function(condition, results, fixed_objects) {
+    list(
+      corr = list(
+        kappa = cor(condition$kappa, results$kappa_est),
+        pmem = cor(condition$pmem, results$pmem_est)
+      ),
+      bias = list(
+        kappa = mean(results$kappa_est - condition$kappa),
+        pmem = mean(results$pmem_est - condition$pmem)
+      ),
+      rmse = list(
+        kappa = sqrt(mean((results$kappa_est - condition$kappa)^2)),
+        pmem = sqrt(mean((results$pmem_est - condition$pmem)^2))
+      )
+    )
+}
+
+#-------------------------------------------------------------------
+
+res <- runSimulation(
+  design = Design, replications = 2, generate = Generate,
+  analyse = Analyse, summarise = Summarise
+)
+```
+
+which... gives me an error
+
+```
+Error: Summarise() should not throw errors. Message was:
+    Error in cor(condition$kappa, results$kappa_est) : 
+  incompatible dimensions
+```
+
+I have misunderstood whne the Summarise function is applied. I thought it is used on the final results over the entire design grid. But the real workflow is like this:
+
+![alt text](assets/simdesign-structure.png)
+
+Specifically, for a single row of the design grid, we get as many results from Analyze() as there are replications. Then Summarise() is applied to these results. This means that the `condition` object in Summarise() is a single row of the design grid, and I cannot compute the correlation between the true and estimated parameters as I did. I will need to do that **outside** of the runSimulation() call.
