@@ -1,6 +1,8 @@
 ---
 title: "Notes on SimDesign"
 toc: true
+execute: 
+  freeze: true
 ---
 
 Let's give this a shot.
@@ -147,7 +149,7 @@ Summarise <- function(condition, results, fixed_objects) {
 
 try({
   res <- runSimulation(
-    design = Design, replications = 2, generate = Generate,
+    design = Design, replications = 4, generate = Generate,
     analyse = Analyse, summarise = Summarise
   )
 })
@@ -181,7 +183,7 @@ Summarise <- function(condition, results, fixed_objects) {
   )
 }
 res <- runSimulation(
-  design = Design, replications = 2, generate = Generate,
+  design = Design, replications = 4, generate = Generate,
   analyse = Analyse, summarise = Summarise, verbose = FALSE
 )
 ```
@@ -214,7 +216,7 @@ Analyse <- function(condition, dat, fixed_objects) {
 } 
 
 res <- runSimulation(
-  design = Design, replications = 2, generate = Generate,
+  design = Design, replications = 4, generate = Generate,
   analyse = Analyse, summarise = Summarise, verbose = FALSE
 )
 
@@ -223,7 +225,18 @@ readRDS('output/results.rds') |> str()
 
 A cool, it forces the result to be of the same form as the output of Analyze. This is important and I should remember this.
 
-### Look at the results of the toy example
+```{r analyze_df}
+#| echo: false
+Analyse <- function(condition, dat, fixed_objects) {
+  suppressMessages(
+    mixtur::fit_mixtur(dat, model = "2_component", unit = "radians") |>
+      dplyr::select(kappa, p_t) |>
+      dplyr::rename(kappa_est = kappa, pmem_est = p_t)
+  )
+} 
+```
+
+### Step 4: Look at the results of the toy example
 
 Strange, when I call the resulting object from `runSimulation()` I get a tibble with some stats, but no results:
 
@@ -231,3 +244,99 @@ Strange, when I call the resulting object from `runSimulation()` I get a tibble 
 res
 ```
 
+(PS: I was naughty and tried to get rid of the argument "fixed_objects" in the functions or to rename it. Alas, this is not allowed even if I have no use for it. Not a great design choice.)
+
+Seems like something has change between the published tutorial paper (2020) and the current package version (11-2024), because when I run the `runSimulation()` function with the verbose option on, I get the following note:
+
+```
+Note: To extract Summarise() results use SimExtract(., what = 'summarise')
+```
+
+Ok? Let's try that:
+
+```{r extract_res}
+extract <- SimExtract(res, what = 'summarise')
+str(extract[1:5])
+```
+
+
+A strange format... Oh, is it because I am outputing a list from Summarise?
+
+```{r Summarise_df}
+Summarise <- function(condition, results, fixed_objects) {
+  data.frame(
+    bias_kappa = mean(results$kappa_est - condition$kappa),
+    bias_pmem = mean(results$pmem_est - condition$pmem),
+    rmse_kappa = sqrt(mean((results$kappa_est - condition$kappa)^2)),
+    rmse_pmem = sqrt(mean((results$pmem_est - condition$pmem)^2))
+  )
+}
+
+res <- runSimulation(
+  design = Design, replications = 100, generate = Generate,
+  analyse = Analyse, summarise = Summarise, verbose = TRUE,
+  parallel = TRUE, ncores = 10,
+  save_results = TRUE, save_details = list(save_results_dirname = "output/SimDesign")
+)
+
+res
+```
+
+Yes, that was it. When I output a data.frame with a single row I get the results embeded. 
+Wasn't this supposed to *not* rerun the simulation when I save the results? Hmm.
+
+Ah, I just misunderstood the manual. The results are saved, but `runSimulation` runs anyway. I can use `reSummarise` to recompute the summaries from the saved results.
+
+First, let's see what I can extract from the existing object. The bias and rmse single values are fine, but I wanted to see correlation across the design grid or perhaps plot the results. 
+
+I should be able to use `SimExtract` to get the results from the `res` object:
+
+```{r extract_res2}
+SimExtract(res, what = 'results')
+```
+
+Nothing? 
+
+Let's look at what is saved in the output directory:
+
+```{r inspect_output}
+list.files("output/SimDesign")
+```
+
+Ok, so I have a bunch of `.rds` files. I can load them and see what's inside:
+
+```{r inspect_rds}
+readRDS(list.files("output/SimDesign", full.names = TRUE)[1]) |> str()
+```
+
+Ok, that's what I wanted, I have the results for each replicatation stored in a data.frame `results`, and one `.rds` file for each row of the design grid.
+
+Oh, it's actually a different command, `SimResults`:
+
+```{r extract_res3}
+str(SimResults(res)[1:3])
+```
+
+Although I have to wonder why this is in a list. Perhaps to save disk space. Although in [the tutorial](https://philchalmers.github.io/SimDesign/articles/SimDesign-intro.html) it just gives a data.frame
+
+
+## Things that annoy me
+
+Should this section exist? Probably not. But there are a few minor things that just bug me for no good reason:
+
+1. Not a fan of CamelCase function names, but I can live with that.
+2. The `runSimulation` function at minimum takes the following arguments, and it annoys me that the numeric argument `replications` is in the middle of other arguments
+
+```r
+runSimulation(
+  design = Design, 
+  replications = 100, 
+  generate = Generate,
+  analyse = Analyse, 
+  summarise = Summarise,
+)
+```
+
+I know I can change the order of the arguments since they are named, but I prefer to keep the order of the arguments as they are in the documentation. I would have liked it more if replications was either the first argument, or if it followed the `summarise` argument.
+
+3. The the computation functions require a "fixed_objects" argument even if they don't use it. The package backend should be handling this, not the user.

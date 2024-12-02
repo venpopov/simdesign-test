@@ -2,3 +2,4 @@ output/*
 *.html
 *_files/
 /.quarto/
+_freeze/
