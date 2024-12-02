@@ -3,13 +3,7 @@ library(SimDesign)
 library(bmm)
 library(mixtur) 
 
-Design <- createDesign(n = c(20, 50, 100),
-                       pmem = c(0.3, 0.6, 0.9),
-                       kappa = c(2, 8, 32))
-
-#-------------------------------------------------------------------
-
-Generate <- function(condition, fixed_objects) {
+m2p_generate <- function(condition, fixed_objects) {
     data.frame(
       response = bmm::rmixture2p(
         n = condition$n, 
@@ -21,7 +15,7 @@ Generate <- function(condition, fixed_objects) {
     )
 }
 
-Analyse <- function(condition, dat, fixed_objects) {
+m2p_analyze <- function(condition, dat, fixed_objects) {
   suppressMessages(
     mixtur::fit_mixtur(dat, model = "2_component", unit = "radians") |> 
       dplyr::select(kappa, p_t) |> 
@@ -29,23 +23,19 @@ Analyse <- function(condition, dat, fixed_objects) {
   )
 }
 
-Summarise <- function(condition, results, fixed_objects) {
-  data.frame(
-    bias_kappa = mean(results$kappa_est - condition$kappa),
-    bias_pmem = mean(results$pmem_est - condition$pmem),
-    rmse_kappa = sqrt(mean((results$kappa_est - condition$kappa)^2)),
-    rmse_pmem = sqrt(mean((results$pmem_est - condition$pmem)^2))
-  )
-}
 
-#-------------------------------------------------------------------
+par_grid <- expand.grid(
+  n = c(20, 50, 100),
+  pmem = c(0.3, 0.6, 0.9),
+  kappa = c(2, 8, 32)
+)
 
 res <- runSimulation(
-  design = Design, replications = 100, generate = Generate,
-  analyse = Analyse, summarise = Summarise, verbose = TRUE,
-  parallel = TRUE, ncores = 10,
-  save_results = TRUE, save_details = list(save_results_dirname = "output/SimDesign")
+  design = par_grid,
+  generate = m2p_generate,
+  analyse = m2p_analyze,
+  replications = 100,
+  parallel = TRUE, ncores = 10
 )
-                     
+                    
 
-res
