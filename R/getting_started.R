@@ -30,25 +30,21 @@ Analyse <- function(condition, dat, fixed_objects) {
 }
 
 Summarise <- function(condition, results, fixed_objects) {
-    saveRDS(results, "output/results.rds")
-    saveRDS(condition, "output/condition.rds")
-    list(
-      bias = list(
-        kappa = mean(results$kappa_est - condition$kappa),
-        pmem = mean(results$pmem_est - condition$pmem)
-      ),
-      rmse = list(
-        kappa = sqrt(mean((results$kappa_est - condition$kappa)^2)),
-        pmem = sqrt(mean((results$pmem_est - condition$pmem)^2))
-      )
-    )
+  data.frame(
+    bias_kappa = mean(results$kappa_est - condition$kappa),
+    bias_pmem = mean(results$pmem_est - condition$pmem),
+    rmse_kappa = sqrt(mean((results$kappa_est - condition$kappa)^2)),
+    rmse_pmem = sqrt(mean((results$pmem_est - condition$pmem)^2))
+  )
 }
 
 #-------------------------------------------------------------------
 
 res <- runSimulation(
-  design = Design, replications = 2, generate = Generate,
-  analyse = Analyse, summarise = Summarise
+  design = Design, replications = 100, generate = Generate,
+  analyse = Analyse, summarise = Summarise, verbose = TRUE,
+  parallel = TRUE, ncores = 10,
+  save_results = TRUE, save_details = list(save_results_dirname = "output/SimDesign")
 )
                      
 

@@ -5,7 +5,7 @@ execute:
   freeze: true
 ---
 
-Let's give this a shot.
+Gidon really likes the package so let's give this a shot.
 
 ## Working with the SimDesign Package
 
@@ -274,7 +274,7 @@ Summarise <- function(condition, results, fixed_objects) {
 
 res <- runSimulation(
   design = Design, replications = 100, generate = Generate,
-  analyse = Analyse, summarise = Summarise, verbose = TRUE,
+  analyse = Analyse, summarise = Summarise, verbose = FALSE,
   parallel = TRUE, ncores = 10,
   save_results = TRUE, save_details = list(save_results_dirname = "output/SimDesign")
 )
@@ -317,10 +317,109 @@ Oh, it's actually a different command, `SimResults`:
 str(SimResults(res)[1:3])
 ```
 
-Although I have to wonder why this is in a list. Perhaps to save disk space. Although in [the tutorial](https://philchalmers.github.io/SimDesign/articles/SimDesign-intro.html) it just gives a data.frame
+Although I have to wonder why this is in a list. Perhaps to save disk space. Although in [the tutorial](https://philchalmers.github.io/SimDesign/articles/SimDesign-intro.html) it just gives a data.frame.
+
+*Note to self:* the reason why `SimExtract` didn't work and I needed to use `SimResults` is because I set the "save_results" argument to true. By default `store_results` is TRUE, meaning that the results are stored in the returned object and can be extracted. If `save_results` is set to TRUE, the results are saved to disk and not stored in the returned object.
+
+Is there a command to aggregate the results, or do I need to write a function myself?
+
+Before I go down that way, let me first replicate the example from the website:
+
+```{r}
+tutorial_design <- createDesign(
+  sample_size = c(30, 60, 120, 240),
+  distribution = c("norm", "chi")
+)
+
+tutorial_generate <- function(condition, fixed_objects) {
+  N <- condition$sample_size
+  dist <- condition$distribution
+  if (dist == "norm") {
+    dat <- rnorm(N, mean = 3)
+  } else if (dist == "chi") {
+    dat <- rchisq(N, df = 3)
+  }
+  dat
+}
+
+tutorial_analyse <- function(condition, dat, fixed_objects) {
+  M0 <- mean(dat)
+  M1 <- mean(dat, trim = .1)
+  M2 <- mean(dat, trim = .2)
+  med <- median(dat)
+
+  ret <- c(mean_no_trim = M0, mean_trim.1 = M1, mean_trim.2 = M2, median = med)
+  ret
+}
+
+tutorial_summarise <- function(condition, results, fixed_objects) {
+  obs_bias <- bias(results, parameter = 3)
+  obs_RMSE <- RMSE(results, parameter = 3)
+  ret <- c(bias = obs_bias, RMSE = obs_RMSE, RE = RE(obs_RMSE))
+  ret
+}
+
+tutorial_res <- runSimulation(tutorial_design,
+  replications = 1000, generate = tutorial_generate,
+  analyse = tutorial_analyse, summarise = tutorial_summarise,
+  verbose = FALSE
+)
+
+tutorial_res
+```
+
+and the results are:
+
+```{r}
+SimResults(tutorial_res)
+```
+
+Ugh! So why are these aggregated but mine are not? Because these return a named vector and I return a data.frame? Let's try that:
+
+```{r try_returning_vector}
+Analyse <- function(condition, dat, fixed_objects) {
+  suppressMessages(
+    mixtur::fit_mixtur(dat, model = "2_component", unit = "radians") |>
+      dplyr::select(kappa, p_t) |>
+      dplyr::rename(kappa_est = kappa, pmem_est = p_t) |>
+      unlist() # since the data.frame is just one row, this should give a named numeric vector
+  )
+}
+
+Summarise <- function(condition, results, fixed_objects) {
+  data.frame(
+    bias_kappa = mean(results$kappa_est - condition$kappa),
+    bias_pmem = mean(results$pmem_est - condition$pmem),
+    rmse_kappa = sqrt(mean((results$kappa_est - condition$kappa)^2)),
+    rmse_pmem = sqrt(mean((results$pmem_est - condition$pmem)^2))
+  )
+}
+
+res <- runSimulation(
+  design = Design, replications = 10, generate = Generate,
+  analyse = Analyse, summarise = Summarise, verbose = FALSE,
+  save_results = TRUE, save_details = list(save_results_dirname = "output/SimDesign")
+)
+
+SimResults(res)[1:3]
+```
+
+Hmm, no difference again. Can it be because I am using "save_results", instead of "store_results"? Let's try that:
+
+```{r store_results_experiment}
+res <- runSimulation(
+  design = Design, replications = 10, generate = Generate,
+  analyse = Analyse, summarise = Summarise, verbose = FALSE,
+)
+
+SimResults(res)
+```
 
 
-## Things that annoy me
+Ah, bingo! Ok, the output format of SimResults should not depend on options set in the `runSimulation` function. I [opened an issue on GitHub](https://github.com/philchalmers/SimDesign/issues/45).
+
+
+## Minor things that annoy me
 
 Should this section exist? Probably not. But there are a few minor things that just bug me for no good reason:
 
