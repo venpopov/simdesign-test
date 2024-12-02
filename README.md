@@ -1,0 +1,1 @@
+This repository is aimed at myself. My goal is to explore how the R SimDesign package might be useful for me in doing parameter recovery simulations. I also want to learn how it might be integrated into my existing tech stack and workflow.
