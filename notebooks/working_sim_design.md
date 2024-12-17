@@ -1,7 +1,7 @@
 # A working example
 
 
-In ![Getting started](getting_started.qmd) I expored the initial stages
+In ![Getting started](getting_started.md) I expored the initial stages
 of using SimDesign and ran into some issues. Starting here fresh after I
 have cleared some of those issues up
 
@@ -9,24 +9,17 @@ have cleared some of those issues up
 # be sure to use remotes::install_github("venpopov/mixtur") instead of the CRAN version for vastly improved efficiency
 library(SimDesign)
 library(bmm)
-library(mixtur) 
+library(mixtur)
 
 m2p_generate <- function(condition, fixed_objects) {
-    data.frame(
-      response = bmm::rmixture2p(
-        n = condition$n, 
-        kappa = condition$kappa, 
-        p_mem = condition$pmem
-      ),
-      target = 0,
-      id = 1
-    )
+  response <- bmm::rmixture2p(n = condition$n, kappa = condition$kappa, p_mem = condition$pmem)
+  data.frame(response = response, target = 0, id = condition$ID)
 }
 
 m2p_analyze <- function(condition, dat, fixed_objects) {
   suppressMessages(
-    mixtur::fit_mixtur(dat, model = "2_component", unit = "radians") |> 
-      dplyr::select(kappa, p_t) |> 
+    mixtur::fit_mixtur(dat, model = "2_component", unit = "radians") |>
+      dplyr::select(kappa, p_t) |>
       dplyr::rename(kappa_est = kappa, pmem_est = p_t)
   )
 }

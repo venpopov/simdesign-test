@@ -4,6 +4,7 @@ toc: true
 format: gfm
 execute: 
   freeze: true
+  cache: true
 ---
 
 Gidon really likes the package so let's give this a shot.

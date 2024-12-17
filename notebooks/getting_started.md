@@ -193,7 +193,7 @@ try({
 
 
 
-    Design: 1/27;   RAM Used: 185.1 Mb;   Replications: 4;   Total Time: 0.00s 
+    Design: 1/27;   RAM Used: 185.5 Mb;   Replications: 4;   Total Time: 0.00s 
      Conditions: n=20, pmem=0.3, kappa=2
 
     Error : Summarise() should not throw errors. Message was:
@@ -265,8 +265,8 @@ readRDS('output/results.rds') |> str()
 ```
 
     'data.frame':   4 obs. of  2 variables:
-     $ kappa_est: num  32.9 42.4 32.9 30.1
-     $ pmem_est : num  0.886 0.856 0.952 0.927
+     $ kappa_est: num  38.8 32 32.9 25.1
+     $ pmem_est : num  0.883 0.91 0.915 0.934
 
 A data.frame with multiple rows it is.
 
@@ -291,17 +291,17 @@ readRDS('output/results.rds') |> str()
 
     List of 4
      $ :List of 2
-      ..$ kappa_est: num 23
-      ..$ pmem_est : num 0.843
+      ..$ kappa_est: num 37.6
+      ..$ pmem_est : num 0.883
      $ :List of 2
-      ..$ kappa_est: num 23.2
-      ..$ pmem_est : num 0.93
+      ..$ kappa_est: num 32.9
+      ..$ pmem_est : num 0.902
      $ :List of 2
-      ..$ kappa_est: num 30.2
-      ..$ pmem_est : num 0.878
+      ..$ kappa_est: num 30
+      ..$ pmem_est : num 0.895
      $ :List of 2
-      ..$ kappa_est: num 37.8
-      ..$ pmem_est : num 0.941
+      ..$ kappa_est: num 39.1
+      ..$ pmem_est : num 0.897
 
 A cool, it forces the result to be of the same form as the output of
 Analyze. This is important and I should remember this.
@@ -318,16 +318,16 @@ res
     # A tibble: 27 × 7
            n  pmem kappa REPLICATIONS SIM_TIME       SEED COMPLETED               
        <dbl> <dbl> <dbl>        <dbl> <chr>         <int> <chr>                   
-     1    20   0.3     2            4 0.02s    1697164363 Mon Dec  2 12:47:20 2024
-     2    50   0.3     2            4 0.02s    1552967362 Mon Dec  2 12:47:20 2024
-     3   100   0.3     2            4 0.03s    2118188717 Mon Dec  2 12:47:20 2024
-     4    20   0.6     2            4 0.02s    2072642104 Mon Dec  2 12:47:20 2024
-     5    50   0.6     2            4 0.02s    1258856439 Mon Dec  2 12:47:20 2024
-     6   100   0.6     2            4 0.02s    1651008935 Mon Dec  2 12:47:20 2024
-     7    20   0.9     2            4 0.03s    1348069160 Mon Dec  2 12:47:20 2024
-     8    50   0.9     2            4 0.02s    1081097633 Mon Dec  2 12:47:20 2024
-     9   100   0.9     2            4 0.02s    1716875653 Mon Dec  2 12:47:20 2024
-    10    20   0.3     8            4 0.02s    2025617480 Mon Dec  2 12:47:20 2024
+     1    20   0.3     2            4 0.02s    1679769111 Mon Dec  2 13:19:18 2024
+     2    50   0.3     2            4 0.02s    1982539320 Mon Dec  2 13:19:18 2024
+     3   100   0.3     2            4 0.02s     818713332 Mon Dec  2 13:19:18 2024
+     4    20   0.6     2            4 0.02s    1201629210 Mon Dec  2 13:19:18 2024
+     5    50   0.6     2            4 0.02s    1065477363 Mon Dec  2 13:19:18 2024
+     6   100   0.6     2            4 0.02s     123447133 Mon Dec  2 13:19:18 2024
+     7    20   0.9     2            4 0.02s    1555975390 Mon Dec  2 13:19:18 2024
+     8    50   0.9     2            4 0.02s    1375231011 Mon Dec  2 13:19:18 2024
+     9   100   0.9     2            4 0.03s     826664493 Mon Dec  2 13:19:18 2024
+    10    20   0.3     8            4 0.02s    1945854645 Mon Dec  2 13:19:18 2024
     # ℹ 17 more rows
 
 (PS: I was naughty and tried to get rid of the argument “fixed_objects”
@@ -411,16 +411,16 @@ res
     # A tibble: 27 × 11
            n  pmem kappa bias_kappa  bias_pmem rmse_kappa rmse_pmem REPLICATIONS
        <dbl> <dbl> <dbl>      <dbl>      <dbl>      <dbl>     <dbl>        <dbl>
-     1    20   0.3     2  381.59     0.2511    3720.0      0.44018           100
-     2    50   0.3     2   50.418    0.18631    342.14     0.39383           100
-     3   100   0.3     2    7.1002   0.14614     49.018    0.32880           100
-     4    20   0.6     2    1.8454   0.11249      8.5142   0.27691           100
-     5    50   0.6     2    0.96463  0.07346      5.7034   0.24722           100
-     6   100   0.6     2    0.39601  0.030500     1.3874   0.17836           100
-     7    20   0.9     2    2.1102  -0.0027400   14.638    0.13676           100
-     8    50   0.9     2    0.25489  0.0025300    0.84006  0.099106          100
-     9   100   0.9     2    0.21434  0.0022700    0.60814  0.090253          100
-    10    20   0.3     8    9.6771   0.12049     52.535    0.29305           100
+     1    20   0.3     2    2.3478   0.2157       8.6389   0.42223           100
+     2    50   0.3     2    4.8896   0.19751     27.146    0.38979           100
+     3   100   0.3     2    0.97703  0.17576      3.6641   0.35324           100
+     4    20   0.6     2    5.8103   0.04249     24.995    0.27239           100
+     5    50   0.6     2    0.90443  0.055670     2.4631   0.22790           100
+     6   100   0.6     2    0.23264  0.040020     1.1902   0.17563           100
+     7    20   0.9     2    0.93026 -0.0056000    2.5960   0.13885           100
+     8    50   0.9     2    0.16732  0.011720     0.77156  0.11250           100
+     9   100   0.9     2    0.09055  0.0064600    0.50337  0.081879          100
+    10    20   0.3     8   14.229    0.11043     57.059    0.26567           100
     # ℹ 17 more rows
     # ℹ 3 more variables: SIM_TIME <chr>, SEED <int>, COMPLETED <chr>
 
@@ -504,8 +504,8 @@ str(SimResults(res)[1:3])
       .. ..$ pmem : num 0.3
       .. ..$ kappa: num 2
       ..$ results      :'data.frame':   100 obs. of  2 variables:
-      .. ..$ kappa_est: num [1:100] 3.72e+04 6.80e-02 6.84e-01 1.67 1.77 ...
-      .. ..$ pmem_est : num [1:100] 0.047 1 1 0.506 0.431 0.51 0.159 0 0.08 1 ...
+      .. ..$ kappa_est: num [1:100] 0.588 0 7.189 18.832 3.862 ...
+      .. ..$ pmem_est : num [1:100] 0.809 0 0.169 0.256 0.249 0.509 0.152 0.25 1 0.501 ...
       ..$ errors       : 'table' int[0 (1d)] 
       .. ..- attr(*, "dimnames")=List of 1
       .. .. ..$ : NULL
@@ -520,8 +520,8 @@ str(SimResults(res)[1:3])
       .. ..$ pmem : num 0.3
       .. ..$ kappa: num 2
       ..$ results      :'data.frame':   100 obs. of  2 variables:
-      .. ..$ kappa_est: num [1:100] 0.962 5.378 160.279 1.591 52.651 ...
-      .. ..$ pmem_est : num [1:100] 0.265 0.364 0.143 0.515 0.125 0.154 1 0.441 0.145 1 ...
+      .. ..$ kappa_est: num [1:100] 2.834 1.294 8.78 0.279 1.977 ...
+      .. ..$ pmem_est : num [1:100] 0.35 0.49 0.24 1 0.208 0.102 0.334 0.424 0.117 0.511 ...
       ..$ errors       : 'table' int[0 (1d)] 
       .. ..- attr(*, "dimnames")=List of 1
       .. .. ..$ : NULL
@@ -536,8 +536,8 @@ str(SimResults(res)[1:3])
       .. ..$ pmem : num 0.3
       .. ..$ kappa: num 2
       ..$ results      :'data.frame':   100 obs. of  2 variables:
-      .. ..$ kappa_est: num [1:100] 2.496 3.99 2.597 2.847 0.554 ...
-      .. ..$ pmem_est : num [1:100] 0.273 0.293 0.12 0.395 1 0.236 0.266 1 0.084 0.589 ...
+      .. ..$ kappa_est: num [1:100] 1.245 7.637 5.71 0.775 6.302 ...
+      .. ..$ pmem_est : num [1:100] 0.603 0.162 0.124 0.192 0.228 1 0.236 0.274 0.24 0.298 ...
       ..$ errors       : 'table' int[0 (1d)] 
       .. ..- attr(*, "dimnames")=List of 1
       .. .. ..$ : NULL
@@ -611,14 +611,14 @@ tutorial_res
     # A tibble: 8 × 18
       sample_size distribution bias.mean_no_trim bias.mean_trim.1 bias.mean_trim.2
             <dbl> <chr>                    <dbl>            <dbl>            <dbl>
-    1          30 norm                0.010238         0.0091692        0.010167  
-    2          60 norm                0.0047822        0.0061445        0.0066667 
-    3         120 norm                0.00094017       0.00035580       0.00023621
-    4         240 norm                0.0031717        0.0027267        0.0026603 
-    5          30 chi                -0.0055570       -0.32959         -0.47009   
-    6          60 chi                 0.0016789       -0.33257         -0.47616   
-    7         120 chi                -0.0084169       -0.35169         -0.49452   
-    8         240 chi                -0.0018711       -0.34883         -0.49080   
+    1          30 norm                0.00092576        0.0016020        0.0019897
+    2          60 norm               -0.011058         -0.011268        -0.010965 
+    3         120 norm                0.00055618        0.0011662        0.0017355
+    4         240 norm                0.0012500         0.0017531        0.0018335
+    5          30 chi                 0.017654         -0.30502         -0.44498  
+    6          60 chi                -0.012510         -0.34175         -0.48397  
+    7         120 chi                 0.0050434        -0.34120         -0.48703  
+    8         240 chi                 0.0026858        -0.34523         -0.48872  
     # ℹ 13 more variables: bias.median <dbl>, RMSE.mean_no_trim <dbl>,
     #   RMSE.mean_trim.1 <dbl>, RMSE.mean_trim.2 <dbl>, RMSE.median <dbl>,
     #   RE.mean_no_trim <dbl>, RE.mean_trim.1 <dbl>, RE.mean_trim.2 <dbl>,
@@ -634,16 +634,16 @@ SimResults(tutorial_res)
     # A tibble: 8,000 × 6
        sample_size distribution mean_no_trim mean_trim.1 mean_trim.2 median
              <dbl> <chr>               <dbl>       <dbl>       <dbl>  <dbl>
-     1          30 norm                 2.69        2.70        2.70   2.75
-     2          30 norm                 2.86        2.86        2.85   2.95
-     3          30 norm                 3.01        2.97        3.00   3.05
-     4          30 norm                 2.95        2.97        2.94   2.74
-     5          30 norm                 2.85        2.84        2.81   2.67
-     6          30 norm                 2.91        2.99        3.00   3.11
-     7          30 norm                 3.03        3.08        3.10   3.29
-     8          30 norm                 3.20        3.15        3.14   3.22
-     9          30 norm                 2.87        2.88        2.90   2.88
-    10          30 norm                 2.87        2.94        2.95   2.90
+     1          30 norm                 3.00        3.00        3.02   2.96
+     2          30 norm                 2.91        2.88        2.86   2.98
+     3          30 norm                 3.05        3.10        3.17   3.24
+     4          30 norm                 2.87        2.79        2.72   2.73
+     5          30 norm                 3.03        3.13        3.17   2.99
+     6          30 norm                 2.79        2.78        2.80   2.78
+     7          30 norm                 3.17        3.14        3.13   3.13
+     8          30 norm                 2.89        2.89        2.90   2.89
+     9          30 norm                 3.03        3.01        2.97   2.83
+    10          30 norm                 3.15        3.20        3.21   3.01
     # ℹ 7,990 more rows
 
 Ugh! So why are these aggregated but mine are not? Because these return
@@ -686,16 +686,16 @@ SimResults(res)[1:3]
 
     [[1]]$results
        kappa_est pmem_est
-    1    256.615    0.112
-    2      2.048    0.398
-    3      0.073    1.000
-    4     21.471    0.249
-    5      1.042    0.819
-    6      3.660    0.418
-    7      2.527    0.450
-    8     12.888    0.258
-    9      0.216    1.000
-    10     2.874    0.534
+    1      9.172    0.251
+    2      2.289    0.477
+    3      0.752    1.000
+    4      7.058    0.213
+    5     30.277    0.149
+    6      1.107    0.544
+    7      0.346    1.000
+    8      0.352    1.000
+    9      1.338    0.444
+    10     4.935    0.268
 
     [[1]]$errors
     < table of extent 0 >
@@ -719,16 +719,16 @@ SimResults(res)[1:3]
 
     [[2]]$results
        kappa_est pmem_est
-    1     10.450    0.140
-    2      0.467    1.000
-    3      0.689    1.000
-    4      4.966    0.314
-    5      1.651    0.401
-    6      3.101    0.278
-    7      1.557    0.760
-    8      0.194    1.000
-    9      0.420    1.000
-    10     0.285    0.999
+    1      2.402    0.238
+    2      3.078    0.211
+    3     14.146    0.303
+    4      0.118    1.000
+    5     33.857    0.064
+    6      4.101    0.295
+    7      4.623    0.345
+    8      8.280    0.193
+    9      0.946    0.647
+    10     0.000    0.000
 
     [[2]]$errors
     < table of extent 0 >
@@ -752,16 +752,16 @@ SimResults(res)[1:3]
 
     [[3]]$results
        kappa_est pmem_est
-    1      0.894    0.543
-    2      2.432    0.245
-    3      4.524    0.267
-    4      1.511    0.374
-    5      2.711    0.348
-    6      8.611    0.182
-    7      2.254    0.293
-    8      1.206    0.360
-    9      3.052    0.378
-    10     6.571    0.224
+    1     11.529    0.123
+    2      1.928    0.324
+    3      2.764    0.282
+    4      4.022    0.319
+    5      3.268    0.155
+    6      2.476    0.223
+    7     35.363    0.148
+    8      3.180    0.372
+    9      3.406    0.195
+    10     5.164    0.241
 
     [[3]]$errors
     < table of extent 0 >
@@ -790,16 +790,16 @@ SimResults(res)
     # A tibble: 270 × 5
            n  pmem kappa kappa_est pmem_est
        <dbl> <dbl> <dbl>     <dbl>    <dbl>
-     1    20   0.3     2     0.592    1    
-     2    20   0.3     2    13.8      0.287
-     3    20   0.3     2     0.809    0.631
-     4    20   0.3     2     0.73     1    
-     5    20   0.3     2    12.3      0.289
-     6    20   0.3     2   391.       0.119
-     7    20   0.3     2    39.0      0.114
-     8    20   0.3     2     2.79     0.309
-     9    20   0.3     2     2.58     0.546
-    10    20   0.3     2     0.016    0.998
+     1    20   0.3     2    18.4      0.079
+     2    20   0.3     2     1.54     0.547
+     3    20   0.3     2     2.03     0.872
+     4    20   0.3     2     0.238    1    
+     5    20   0.3     2    55.7      0.271
+     6    20   0.3     2    11.1      0.541
+     7    20   0.3     2     0        0    
+     8    20   0.3     2     0        0    
+     9    20   0.3     2     1.83     0.285
+    10    20   0.3     2    13.1      0.143
     # ℹ 260 more rows
 
 Ah, bingo! Ok, the output format of SimResults should not depend on
